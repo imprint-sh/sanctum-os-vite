@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 'firebase/auth';
-import { getFirestore, collection, doc, addDoc, onSnapshot, query, updateDoc, deleteDoc, serverTimestamp, getDocs, setDoc, orderBy, getDoc } from 'firebase/firestore';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ComposedChart } from 'recharts';
+import { getFirestore, collection, doc, addDoc, onSnapshot, query, updateDoc, deleteDoc, serverTimestamp, setDoc, orderBy, getDoc } from 'firebase/firestore';
+import { Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ComposedChart } from 'recharts';
 
 // --- ICONS (SVG Components) ---
 const DashboardIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>;
@@ -15,16 +15,16 @@ const ChevronRight = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" he
 const CheckCircle = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>;
 
 // --- Firebase Initialization ---
-const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+const firebaseConfig = {
+apiKey: import.meta.env.VITE_API_KEY,
+authDomain: import.meta.env.VITE_AUTH_DOMAIN,
+projectId: import.meta.env.VITE_PROJECT_ID,
+storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
+messagingSenderId: import.meta.env.VITE_MESSAGING_SENDER_ID,
+appId: import.meta.env.VITE_APP_ID
 };
 
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+const appId = (typeof window !== 'undefined' && window.__app_id !== undefined) ? window.__app_id : 'default-app-id';
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -97,7 +97,7 @@ export default function App() {
 
   const initializeAudio = () => {
     if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+        audioContextRef.current = new (window.AudioContext || window.webkitAudioContext?.bind(window))();
     }
     setSoundEnabled(true);
     playSound('click');
@@ -272,7 +272,7 @@ const Glossary = ({ userId, playSound }) => {
 const Forge = ({ userId, playSound }) => {
     const [activeTab, setActiveTab] = useState('Ritual Planner');
     return (<div><h1 className="text-2xl sm:text-3xl font-bold text-white mb-2 tracking-widest">THE FORGE</h1><p className="text-gray-500 mb-8">Ritual & System Management.</p><div className="flex space-x-4 border-b border-gray-700 mb-6"><TabButton name="Ritual Planner" activeTab={activeTab} onClick={setActiveTab} playSound={playSound}/><TabButton name="Lunar OS" activeTab={activeTab} onClick={setActiveTab} playSound={playSound}/><TabButton name="Hyper-Sculpt" activeTab={activeTab} onClick={setActiveTab} playSound={playSound}/></div>
-    {activeTab === 'Ritual Planner' && <RitualPlanner userId={userId} playSound={playSound} />} {activeTab === 'Lunar OS' && <LunarOS userId={userId} playSound={playSound} />} {activeTab === 'Hyper-Sculpt' && <HyperSculpt userId={userId} playSound={playSound} />} </div>);};
+    {activeTab === 'Ritual Planner' && <RitualPlanner userId={userId} playSound={playSound} />} {activeTab === 'Lunar OS' && <LunarOS userId={userId} playSound={playSound} />} {activeTab === 'Hyper-Sculpt' && <HyperSculpt playSound={playSound} />} </div>);};
 
 const ritualDatabase = {
     daily: [ { name: "Hydration Protocol: Void Activation", time: "06:00" }, { name: "Mirror Invocation: Silhouette & Stillness", time: "06:05" }, { name: "Incantation: Core Code Implantation", time: "06:10" }, { name: "Hyper-Sculpt: Flesh-Architecture Forging", time: "06:30" }, { name: "Armor Selection: Signal Transmission", time: "07:30" }, { name: "Digital Sunset: Signal Purity Protocol", time: "21:00" }, { name: "Grimoire Entry: Data Download & Prophecy Logging", time: "21:30" }, { name: "Sanctum Reset: Environmental Encoding", time: "22:00" }, { name: "Final Affirmation: Void Descent", time: "22:10" } ],
@@ -306,7 +306,7 @@ const hyperSculptRoutines = {
     "High-Intensity Metabolic Rite (Full Body Burn)": [ { name: "Burpees (No Push-up)", reps: "3x10", function: "Full-body metabolic conditioning. Builds endurance and power.", how: "From standing, drop into a squat, place hands on floor, kick feet back to a plank, immediately jump feet back to squat, then explode up into a jump." }, { name: "Jumping Lunges", reps: "3x12 per leg", function: "Plyometric exercise for explosive leg power and cardiovascular conditioning.", how: "Start in a lunge position. Jump up, switching legs in mid-air to land in a lunge with the opposite foot forward." }, { name: "High Knees", reps: "3x 45s", function: "Cardio drill to increase heart rate and improve coordination.", how: "Run in place, driving knees up towards your chest as high and fast as possible." }, { name: "Mountain Climbers", reps: "3x 45s", function: "Full-body exercise that targets core, shoulders, and cardiovascular system.", how: "From a plank position, drive one knee towards your chest, then switch, 'running' your legs in place." }, { name: "Plank Jacks", reps: "3x 45s", function: "Combines a plank with a jumping jack motion to challenge core stability.", how: "From a plank position, jump your feet wide apart and then back together. Keep hips stable." } ]
 };
 
-const HyperSculpt = ({ userId, playSound }) => {
+const HyperSculpt = ({ playSound }) => {
     const [selectedRoutine, setSelectedRoutine] = useState(null);
     const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
 
