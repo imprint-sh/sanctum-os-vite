@@ -97,7 +97,9 @@ export default function App() {
 
   const initializeAudio = () => {
     if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext || window.webkitAudioContext?.bind(window))();
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        audioContextRef.current = new AudioCtx();
     }
     setSoundEnabled(true);
     playSound('click');
